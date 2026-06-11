@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Folk Bier">
+<meta name="theme-color" content="#0f0a04">
+<title>Folk Bier — Gestión</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;900&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{--gold:#BA7517;--dark:#1a1008;--darker:#0f0a04;--border:#2a1f0a;--text:#f0e8d8;--muted:#888;--ok:#4caf6e;--warn:#d4860a;--danger:#e05555}
+body{font-family:'Barlow',sans-serif;background:var(--dark);min-height:100vh;color:var(--text);padding-bottom:70px}
+
+/* TOPBAR */
+.topbar{background:var(--darker);border-bottom:2px solid var(--gold);padding:10px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.logo-text{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:20px;letter-spacing:2px;text-transform:uppercase;color:var(--text);display:flex;align-items:center;gap:8px}
+.logo-text span{color:var(--gold)}
+.sync-badge{font-size:10px;padding:3px 7px;border-radius:3px;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:0.5px;text-transform:uppercase}
+.sync-ok{background:#0d2b12;color:var(--ok);border:0.5px solid #1a4d22}
+.sync-saving{background:#2b1f05;color:var(--warn);border:0.5px solid #4a3208}
+.sync-error{background:#2b0d0d;color:var(--danger);border:0.5px solid #4d1a1a}
+
+/* BOTTOM NAV (mobile) */
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:var(--darker);border-top:1px solid var(--border);display:flex;z-index:100;height:60px}
+.bnav-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;background:none;border:none;color:var(--muted);cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-size:9px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;padding:4px 2px;transition:color 0.15s;min-width:0}
+.bnav-btn i{font-size:20px}
+.bnav-btn.active{color:var(--gold)}
+.bnav-btn span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+
+/* PAGES */
+.main{padding:14px;max-width:600px;margin:0 auto}
+.page{display:none}.page.active{display:block}
+.page-title{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:24px;letter-spacing:2px;text-transform:uppercase;color:var(--text);margin-bottom:3px}
+.page-sub{font-size:12px;color:var(--muted);margin-bottom:16px}
+
+/* METRICS */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px}
+.metric{background:var(--darker);border:0.5px solid var(--border);border-radius:8px;padding:12px;border-left:3px solid var(--gold)}
+.metric-label{font-size:10px;color:var(--muted);letter-spacing:0.5px;text-transform:uppercase;font-family:'Barlow Condensed',sans-serif;font-weight:600;margin-bottom:4px}
+.metric-val{font-size:18px;font-weight:600;color:var(--text);font-family:'Barlow Condensed',sans-serif;line-height:1.1}
+.metric-sub{font-size:10px;color:#666;margin-top:2px}
+
+/* CARDS */
+.card{background:var(--darker);border:0.5px solid var(--border);border-radius:10px;padding:14px;margin-bottom:12px}
+.card-title{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:13px;letter-spacing:1px;text-transform:uppercase;color:var(--gold);margin-bottom:12px;display:flex;align-items:center;gap:6px}
+.row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:0.5px solid #1e1508}
+.row:last-child{border-bottom:none}
+.row-left{display:flex;flex-direction:column;gap:2px;flex:1;min-width:0;padding-right:8px}
+.row-name{font-size:14px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row-sub{font-size:11px;color:#666}
+
+/* BADGES */
+.badge{font-size:10px;padding:3px 8px;border-radius:3px;font-weight:600;font-family:'Barlow Condensed',sans-serif;letter-spacing:0.5px;text-transform:uppercase;white-space:nowrap}
+.badge-ok{background:#0d2b12;color:var(--ok);border:0.5px solid #1a4d22}
+.badge-warn{background:#2b1f05;color:var(--warn);border:0.5px solid #4a3208}
+.badge-danger{background:#2b0d0d;color:var(--danger);border:0.5px solid #4d1a1a}
+.badge-blue{background:#0a1a2b;color:#4a9fd4;border:0.5px solid #0d2a3d}
+.badge-gray{background:#1a1508;color:var(--muted);border:0.5px solid var(--border)}
+
+/* BUTTONS */
+.btn{padding:9px 16px;border-radius:6px;cursor:pointer;font-size:12px;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:1px;text-transform:uppercase;border:1px solid #3a2a0a;background:#1a1008;color:var(--text);transition:all 0.15s;display:inline-flex;align-items:center;gap:5px;touch-action:manipulation}
+.btn:active{opacity:0.8}
+.btn-primary{background:var(--gold);color:var(--darker);border-color:var(--gold)}
+.btn-danger{background:#2b0d0d;color:var(--danger);border-color:#4d1a1a}
+.btn-sm{padding:6px 10px;font-size:11px}
+.btn-full{width:100%;justify-content:center;padding:12px}
+
+/* SECTION HEAD */
+.section-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.section-head h2{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:18px;letter-spacing:1px;text-transform:uppercase;color:var(--text)}
+
+/* TABS */
+.tabs{display:flex;gap:0;margin-bottom:14px;border-bottom:1px solid var(--border)}
+.tab{flex:1;padding:10px 8px;font-size:11px;cursor:pointer;border-bottom:2px solid transparent;color:var(--muted);background:none;border-left:none;border-right:none;border-top:none;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:-1px;text-align:center}
+.tab.active{color:var(--gold);border-bottom-color:var(--gold)}
+
+/* FORMS */
+.form-group{display:flex;flex-direction:column;gap:5px;margin-bottom:12px}
+.form-group label{font-size:11px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;font-family:'Barlow Condensed',sans-serif;font-weight:600}
+.form-group input,.form-group select,.form-group textarea{font-family:'Barlow',sans-serif;border:0.5px solid var(--border);border-radius:6px;padding:10px 12px;font-size:15px;background:#1a1008;color:var(--text);width:100%;-webkit-appearance:none}
+.form-group input:focus,.form-group select:focus{outline:none;border-color:var(--gold)}
+.form-group textarea{resize:vertical;min-height:80px}
+.form-row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+
+/* TABLES — mobile card style */
+.tbl-item{background:#141008;border:0.5px solid var(--border);border-radius:8px;padding:10px 12px;margin-bottom:8px}
+.tbl-item-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+.tbl-item-row:last-child{margin-bottom:0}
+.tbl-label{font-size:10px;color:var(--muted);text-transform:uppercase;font-family:'Barlow Condensed',sans-serif;font-weight:600;letter-spacing:0.5px}
+.tbl-val{font-size:13px;color:var(--text)}
+
+/* FERMENTADORES */
+.ferm-bar{display:flex;align-items:center;gap:10px;margin-bottom:10px;padding:12px;background:#1a1008;border-radius:8px;border:0.5px solid var(--border)}
+.ferm-label{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:13px;letter-spacing:1px;text-transform:uppercase;color:var(--gold);min-width:44px}
+.ferm-prog{flex:1;height:8px;background:var(--darker);border-radius:4px;overflow:hidden}
+.ferm-fill{height:100%;background:var(--gold);border-radius:4px}
+.ferm-pct{font-size:12px;color:var(--text);min-width:36px;text-align:right;font-family:'Barlow Condensed',sans-serif;font-weight:600}
+
+/* BARRILES */
+.barrel-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+.barrel-card{background:var(--darker);border:0.5px solid var(--border);border-radius:8px;padding:10px 6px;text-align:center}
+.barrel-icon{font-size:22px;margin-bottom:4px}
+.barrel-name{font-size:11px;font-weight:700;color:var(--text);font-family:'Barlow Condensed',sans-serif}
+.barrel-status{font-size:9px;color:var(--muted);margin-top:2px;line-height:1.3}
+
+/* MODAL */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:200;align-items:flex-end;justify-content:center}
+.modal-bg.show{display:flex}
+.modal{background:var(--darker);border:1px solid #3a2a0a;border-radius:16px 16px 0 0;padding:20px 16px;width:100%;max-width:600px;border-top:3px solid var(--gold);max-height:90vh;overflow-y:auto}
+.modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.modal-head h3{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:18px;letter-spacing:1px;text-transform:uppercase;color:var(--text)}
+.close-btn{background:none;border:none;font-size:26px;cursor:pointer;color:#666;line-height:1;padding:0 4px}
+.stat-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:0.5px solid #1e1508;font-size:13px}
+.stat-row:last-child{border-bottom:none}
+.acct-balance{font-size:20px;font-weight:600;margin:8px 0 4px;font-family:'Barlow Condensed',sans-serif}
+.acct-balance.positive{color:var(--ok)}
+.acct-balance.negative{color:var(--danger)}
+
+/* VENTA ITEM */
+.venta-item{background:#141008;border:0.5px solid var(--border);border-radius:8px;padding:10px;margin-bottom:10px}
+.venta-total-bar{display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--border);padding-top:12px;margin-top:4px}
+
+/* TOAST */
+.toast{position:fixed;top:70px;left:50%;transform:translateX(-50%);background:var(--gold);color:var(--darker);padding:10px 20px;border-radius:20px;font-size:13px;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:1px;text-transform:uppercase;opacity:0;transition:opacity 0.3s;z-index:999;pointer-events:none;white-space:nowrap}
+.toast.show{opacity:1}
+
+/* LOADING */
+.loading-screen{position:fixed;inset:0;background:var(--dark);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:500;gap:16px}
+.loading-logo{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:48px;letter-spacing:4px;text-transform:uppercase;color:var(--text)}
+.loading-logo span{color:var(--gold)}
+.loading-sub{font-size:11px;letter-spacing:3px;color:#666;text-transform:uppercase;font-family:'Barlow Condensed',sans-serif}
+.loading-bar{width:180px;height:3px;background:var(--border);border-radius:2px;overflow:hidden}
+.loading-fill{height:100%;background:var(--gold);border-radius:2px;animation:lf 2s ease-in-out forwards}
+@keyframes lf{from{width:0}to{width:100%}}
+</style>
+</head>
+<body>
+
+<div class="loading-screen" id="loading-screen">
+  <div class="loading-logo">Folk <span>Bier</span></div>
+  <div class="loading-sub" id="loading-msg">Conectando...</div>
+  <div class="loading-bar"><div class="loading-fill"></div></div>
+</div>
+
+<div id="app" style="display:none">
+
+<div class="topbar">
+  <div class="logo-text">Folk <span>Bier</span></div>
+  <span class="sync-badge sync-ok" id="sync-badge">☁ En línea</span>
+</div>
+
+<div class="main">
+  <!-- DASHBOARD -->
+  <div id="page-dashboard" class="page active">
+    <div class="page-title">Panel</div>
+    <div class="page-sub" id="fecha-hoy"></div>
+    <div class="grid2">
+      <div class="metric"><div class="metric-label">Ventas hoy</div><div class="metric-val" id="dash-ventas-hoy">Gs. 0</div></div>
+      <div class="metric"><div class="metric-label">Por cobrar</div><div class="metric-val" id="dash-cobrar">Gs. 0</div></div>
+      <div class="metric"><div class="metric-label">Litros</div><div class="metric-val" id="dash-litros">0 L</div></div>
+      <div class="metric"><div class="metric-label">Clientes</div><div class="metric-val" id="dash-clientes">0</div></div>
+      <div class="metric"><div class="metric-label">Críticos</div><div class="metric-val" id="dash-criticos">0</div><div class="metric-sub">bajo mínimo</div></div>
+      <div class="metric"><div class="metric-label">Barriles calle</div><div class="metric-val" id="dash-barriles">0</div></div>
+    </div>
+    <div class="card"><div class="card-title"><i class="ti ti-alert-triangle"></i>Alertas</div><div id="alertas-container"><div style="font-size:13px;color:#666">Sin alertas.</div></div></div>
+    <div class="card"><div class="card-title"><i class="ti ti-history"></i>Últimas ventas</div><div id="ultimas-ventas-container"><div style="font-size:13px;color:#666">No hay ventas aún.</div></div></div>
+  </div>
+
+  <!-- STOCK -->
+  <div id="page-stock" class="page">
+    <div class="tabs">
+      <button class="tab active" onclick="showTab('stock','insumos',this)">Insumos</button>
+      <button class="tab" onclick="showTab('stock','terminados',this)">Terminados</button>
+    </div>
+    <div id="stock-tab-insumos">
+      <div class="section-head"><h2>Insumos</h2><button class="btn btn-primary btn-sm" onclick="openModal('modal-insumo')"><i class="ti ti-plus"></i> Agregar</button></div>
+      <div id="lista-insumos"></div>
+    </div>
+    <div id="stock-tab-terminados" style="display:none">
+      <div class="section-head"><h2>Terminados</h2><button class="btn btn-primary btn-sm" onclick="openModal('modal-terminado')"><i class="ti ti-plus"></i> Agregar</button></div>
+      <div id="lista-terminados"></div>
+    </div>
+  </div>
+
+  <!-- PRODUCCIÓN -->
+  <div id="page-produccion" class="page">
+    <div class="section-head"><h2>Fermentadores</h2><button class="btn btn-primary btn-sm" onclick="openModal('modal-lote')"><i class="ti ti-plus"></i> Lote</button></div>
+    <div class="card"><div class="card-title"><i class="ti ti-flask"></i>Estado actual</div><div id="ferm-container"></div></div>
+    <div class="card"><div class="card-title"><i class="ti ti-list"></i>Historial</div><div id="lista-lotes"></div></div>
+  </div>
+
+  <!-- VENTAS -->
+  <div id="page-ventas" class="page">
+    <div class="card">
+      <div class="card-title"><i class="ti ti-shopping-cart"></i>Nueva venta</div>
+      <div class="form-group"><label>Cliente</label><select id="venta-cliente"><option value="">— Venta directa —</option></select></div>
+      <div class="form-group"><label>Pago</label><select id="venta-pago"><option value="contado">Contado</option><option value="transferencia">Transferencia</option><option value="qr">QR</option><option value="fiado">Fiado / cta. cte.</option></select></div>
+      <div id="items-venta"></div>
+      <button class="btn btn-sm" style="margin-bottom:14px;width:100%;justify-content:center" onclick="addItemVenta()"><i class="ti ti-plus"></i> Agregar producto</button>
+      <div class="venta-total-bar">
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;letter-spacing:1px;text-transform:uppercase">Total: <span id="total-venta" style="color:var(--gold)">Gs. 0</span></div>
+        <button class="btn btn-primary" onclick="registrarVenta()"><i class="ti ti-check"></i> Registrar</button>
+      </div>
+    </div>
+    <div class="card"><div class="card-title"><i class="ti ti-history"></i>Ventas</div><div id="lista-ventas"></div></div>
+  </div>
+
+  <!-- CLIENTES -->
+  <div id="page-clientes" class="page">
+    <div class="section-head"><h2>Clientes</h2><button class="btn btn-primary btn-sm" onclick="openModal('modal-cliente')"><i class="ti ti-plus"></i> Nuevo</button></div>
+    <div id="lista-clientes"></div>
+  </div>
+
+  <!-- CAJA -->
+  <div id="page-caja" class="page">
+    <div class="grid2" style="margin-bottom:14px">
+      <div class="metric"><div class="metric-label">Ingresos hoy</div><div class="metric-val" id="caja-ingresos">Gs. 0</div></div>
+      <div class="metric"><div class="metric-label">Egresos hoy</div><div class="metric-val" id="caja-egresos">Gs. 0</div></div>
+      <div class="metric"><div class="metric-label">Balance hoy</div><div class="metric-val" id="caja-balance">Gs. 0</div></div>
+      <div class="metric"><div class="metric-label">Balance total</div><div class="metric-val" id="caja-total">Gs. 0</div></div>
+    </div>
+    <div class="card">
+      <div class="card-title"><i class="ti ti-plus-minus"></i>Registrar</div>
+      <div class="form-row2">
+        <div class="form-group"><label>Tipo</label><select id="mov-tipo"><option value="ingreso">Ingreso</option><option value="egreso">Egreso</option></select></div>
+        <div class="form-group"><label>Monto (Gs.)</label><input type="number" id="mov-monto" placeholder="0" inputmode="numeric"></div>
+      </div>
+      <div class="form-group"><label>Descripción</label><input type="text" id="mov-desc" placeholder="Ej: compra de lúpulo"></div>
+      <button class="btn btn-primary btn-full" onclick="registrarMovimiento()">Registrar movimiento</button>
+    </div>
+    <div class="card"><div class="card-title"><i class="ti ti-history"></i>Movimientos del día</div><div id="lista-caja"></div></div>
+  </div>
+
+  <!-- BARRILES -->
+  <div id="page-barriles" class="page">
+    <div class="tabs">
+      <button class="tab active" onclick="showTab('barriles','barrilTab',this)">Barriles</button>
+      <button class="tab" onclick="showTab('barriles','choppTab',this)">Chopps</button>
+    </div>
+    <div id="barriles-tab-barrilTab">
+      <div class="section-head"><h2>Barriles</h2><button class="btn btn-primary btn-sm" onclick="openModal('modal-barril-mov')"><i class="ti ti-arrows-exchange"></i> Mover</button></div>
+      <div class="barrel-grid" id="barril-grid"></div>
+      <div class="card"><div class="card-title"><i class="ti ti-history"></i>Historial</div><div id="lista-barril-mov"></div></div>
+    </div>
+    <div id="barriles-tab-choppTab" style="display:none">
+      <div class="section-head"><h2>Chopps</h2></div>
+      <div class="card"><div class="card-title"><i class="ti ti-tool"></i>Chopp #1</div><div id="chopp1-info"></div><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px"><button class="btn btn-sm" onclick="choppAccion(1,'conectar')">Conectar</button><button class="btn btn-sm" onclick="choppAccion(1,'vaciar')">Vaciar</button><button class="btn btn-sm" onclick="choppAccion(1,'limpieza')">Limpieza</button></div></div>
+      <div class="card"><div class="card-title"><i class="ti ti-tool"></i>Chopp #2</div><div id="chopp2-info"></div><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px"><button class="btn btn-sm" onclick="choppAccion(2,'conectar')">Conectar</button><button class="btn btn-sm" onclick="choppAccion(2,'vaciar')">Vaciar</button><button class="btn btn-sm" onclick="choppAccion(2,'limpieza')">Limpieza</button></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav">
+  <button class="bnav-btn active" onclick="showPage('dashboard',this)"><i class="ti ti-layout-dashboard"></i><span>Inicio</span></button>
+  <button class="bnav-btn" onclick="showPage('stock',this)"><i class="ti ti-package"></i><span>Stock</span></button>
+  <button class="bnav-btn" onclick="showPage('produccion',this)"><i class="ti ti-flask"></i><span>Prod.</span></button>
+  <button class="bnav-btn" onclick="showPage('ventas',this)"><i class="ti ti-receipt"></i><span>Ventas</span></button>
+  <button class="bnav-btn" onclick="showPage('clientes',this)"><i class="ti ti-users"></i><span>Clientes</span></button>
+  <button class="bnav-btn" onclick="showPage('caja',this)"><i class="ti ti-cash"></i><span>Caja</span></button>
+  <button class="bnav-btn" onclick="showPage('barriles',this)"><i class="ti ti-cylinder"></i><span>Barriles</span></button>
+</nav>
+
+</div><!-- /app -->
+
+<!-- MODALES -->
+<div class="modal-bg" id="modal-insumo"><div class="modal"><div class="modal-head"><h3>Agregar insumo</h3><button class="close-btn" onclick="closeModal('modal-insumo')">×</button></div><div class="form-group"><label>Nombre</label><input type="text" id="ins-nombre" placeholder="Ej: Lúpulo Cascade"></div><div class="form-row2"><div class="form-group"><label>Categoría</label><select id="ins-cat"><option>Malta</option><option>Lúpulo</option><option>Levadura</option><option>Adjunto</option><option>Envase</option><option>Otro</option></select></div><div class="form-group"><label>Unidad</label><select id="ins-unidad"><option>kg</option><option>g</option><option>L</option><option>unidad</option></select></div></div><div class="form-row2"><div class="form-group"><label>Stock actual</label><input type="number" id="ins-stock" placeholder="0" inputmode="decimal"></div><div class="form-group"><label>Stock mínimo</label><input type="number" id="ins-min" placeholder="0" inputmode="decimal"></div></div><button class="btn btn-primary btn-full" onclick="guardarInsumo()">Guardar</button></div></div>
+
+<div class="modal-bg" id="modal-terminado"><div class="modal"><div class="modal-head"><h3>Producto terminado</h3><button class="close-btn" onclick="closeModal('modal-terminado')">×</button></div><div class="form-group"><label>Nombre / estilo</label><input type="text" id="ter-nombre" placeholder="Ej: Pale Ale"></div><div class="form-group"><label>Formato</label><select id="ter-formato"><option>Botella 330ml vidrio</option><option>PET 1L</option><option>Barril 20L</option><option>Barril 30L</option><option>Litro chopp</option></select></div><div class="form-row2"><div class="form-group"><label>Stock</label><input type="number" id="ter-stock" placeholder="0" inputmode="numeric"></div><div class="form-group"><label>Precio (Gs.)</label><input type="number" id="ter-precio" placeholder="0" inputmode="numeric"></div></div><button class="btn btn-primary btn-full" onclick="guardarTerminado()">Guardar</button></div></div>
+
+<div class="modal-bg" id="modal-lote"><div class="modal"><div class="modal-head"><h3>Nuevo lote</h3><button class="close-btn" onclick="closeModal('modal-lote')">×</button></div><div class="form-group"><label>Estilo</label><input type="text" id="lote-estilo" placeholder="Ej: IPA, Stout"></div><div class="form-row2"><div class="form-group"><label>Fermentador</label><select id="lote-ferm"><option value="80">80L</option><option value="150">150L</option><option value="300">300L</option><option value="500">500L</option></select></div><div class="form-group"><label>Volumen (L)</label><input type="number" id="lote-vol" placeholder="0" inputmode="numeric"></div></div><div class="form-row2"><div class="form-group"><label>Fecha inicio</label><input type="date" id="lote-fecha"></div><div class="form-group"><label>Días estim.</label><input type="number" id="lote-dias" value="14" inputmode="numeric"></div></div><div class="form-group"><label>Notas</label><textarea id="lote-notas" placeholder="Receta, observaciones..."></textarea></div><button class="btn btn-primary btn-full" onclick="guardarLote()">Iniciar lote</button></div></div>
+
+<div class="modal-bg" id="modal-cliente"><div class="modal"><div class="modal-head"><h3>Nuevo cliente</h3><button class="close-btn" onclick="closeModal('modal-cliente')">×</button></div><div class="form-group"><label>Nombre / empresa</label><input type="text" id="cli-nombre"></div><div class="form-row2"><div class="form-group"><label>Teléfono</label><input type="tel" id="cli-tel"></div><div class="form-group"><label>Dirección</label><input type="text" id="cli-dir"></div></div><div class="form-group"><label>Notas</label><textarea id="cli-notas" placeholder="Preferencias..."></textarea></div><button class="btn btn-primary btn-full" onclick="guardarCliente()">Guardar</button></div></div>
+
+<div class="modal-bg" id="modal-barril-mov"><div class="modal"><div class="modal-head"><h3>Movimiento barril</h3><button class="close-btn" onclick="closeModal('modal-barril-mov')">×</button></div><div class="form-row2"><div class="form-group"><label>Barril</label><select id="bm-barril"></select></div><div class="form-group"><label>Acción</label><select id="bm-accion"><option value="llenar">Llenar</option><option value="salida">Enviar</option><option value="retorno">Retorno</option><option value="limpieza">Limpieza</option></select></div></div><div class="form-row2"><div class="form-group"><label>Contenido</label><input type="text" id="bm-contenido" placeholder="Ej: IPA"></div><div class="form-group"><label>Destino</label><input type="text" id="bm-destino"></div></div><button class="btn btn-primary btn-full" onclick="registrarMovBarril()">Registrar</button></div></div>
+
+<div class="modal-bg" id="modal-cliente-detalle"><div class="modal"><div class="modal-head"><h3 id="detalle-nombre">Cliente</h3><button class="close-btn" onclick="closeModal('modal-cliente-detalle')">×</button></div><div id="detalle-body"></div><div style="margin-top:14px;border-top:0.5px solid var(--border);padding-top:14px"><div class="form-group"><label>Registrar cobro (Gs.)</label><input type="number" id="cobro-monto" placeholder="0" inputmode="numeric"></div><button class="btn btn-primary btn-full" onclick="registrarCobro()">Registrar cobro</button></div></div></div>
+
+<div class="modal-bg" id="modal-editar-caja"><div class="modal"><div class="modal-head"><h3>Editar movimiento</h3><button class="close-btn" onclick="closeModal('modal-editar-caja')">×</button></div><div class="form-group"><label>Tipo</label><select id="edit-mov-tipo"><option value="ingreso">Ingreso</option><option value="egreso">Egreso</option></select></div><div class="form-group"><label>Descripción</label><input type="text" id="edit-mov-desc"></div><div class="form-group"><label>Monto (Gs.)</label><input type="number" id="edit-mov-monto" inputmode="numeric"></div><div style="display:flex;gap:10px;margin-top:4px"><button class="btn btn-danger" style="flex:1;justify-content:center" onclick="eliminarMovCaja()"><i class="ti ti-trash"></i> Eliminar</button><button class="btn btn-primary" style="flex:1;justify-content:center" onclick="guardarEditCaja()">Guardar</button></div></div></div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getDatabase, ref, set, onValue, get } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAVAGQgFsw3bltKuKaO_tTJgCFIlepBZSc",
+  authDomain: "folk-administracion.firebaseapp.com",
+  databaseURL: "https://folk-administracion-default-rtdb.firebaseio.com",
+  projectId: "folk-administracion",
+  storageBucket: "folk-administracion.firebasestorage.app",
+  messagingSenderId: "998705064048",
+  appId: "1:998705064048:web:1f15df69be312ddcf3ecb5",
+  measurementId: "G-ZN4BKH81X6"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+const ROOT = 'folkbier';
+
+const DEFAULT = {
+  insumos:[
+    {id:1,nombre:'Malta Pale',cat:'Malta',unidad:'kg',stock:45,min:20},
+    {id:2,nombre:'Lúpulo Cascade',cat:'Lúpulo',unidad:'g',stock:800,min:500},
+    {id:3,nombre:'Levadura US-05',cat:'Levadura',unidad:'unidad',stock:3,min:5},
+    {id:4,nombre:'Botellas 330ml',cat:'Envase',unidad:'unidad',stock:240,min:100},
+    {id:5,nombre:'PET 1L',cat:'Envase',unidad:'unidad',stock:60,min:50},
+  ],
+  terminados:[
+    {id:1,nombre:'Folk Pale Ale',formato:'Botella 330ml vidrio',stock:120,precio:12000},
+    {id:2,nombre:'Folk Pale Ale',formato:'PET 1L',stock:30,precio:25000},
+    {id:3,nombre:'Folk IPA',formato:'Botella 330ml vidrio',stock:48,precio:13000},
+  ],
+  lotes:[],clientes:[],ventas:[],caja:[],
+  barriles:[
+    {id:'B20-1',cap:20,estado:'disponible',contenido:'',cliente:''},
+    {id:'B20-2',cap:20,estado:'disponible',contenido:'',cliente:''},
+    {id:'B20-3',cap:20,estado:'disponible',contenido:'',cliente:''},
+    {id:'B20-4',cap:20,estado:'disponible',contenido:'',cliente:''},
+    {id:'B30-1',cap:30,estado:'disponible',contenido:'',cliente:''},
+    {id:'B30-2',cap:30,estado:'disponible',contenido:'',cliente:''},
+    {id:'B30-3',cap:30,estado:'disponible',contenido:'',cliente:''},
+    {id:'B30-4',cap:30,estado:'disponible',contenido:'',cliente:''},
+    {id:'B30-5',cap:30,estado:'disponible',contenido:'',cliente:''},
+    {id:'B30-6',cap:30,estado:'disponible',contenido:'',cliente:''},
+    {id:'B30-7',cap:30,estado:'disponible',contenido:'',cliente:''},
+    {id:'B30-8',cap:30,estado:'disponible',contenido:'',cliente:''},
+  ],
+  barrilMovs:[],
+  chopps:[{id:1,estado:'libre',barril:'',contenido:'',desde:''},{id:2,estado:'libre',barril:'',contenido:'',desde:''}],
+};
+
+let state=null,saveTimer=null,_clienteDetalleId=null,_editCajaId=null;
+
+function arr(x){return Array.isArray(x)?x:Object.values(x||{});}
+function fmt(n){return 'Gs. '+Math.round(n).toLocaleString('es-PY')}
+function today(){return new Date().toISOString().slice(0,10)}
+function nowTime(){return new Date().toLocaleTimeString('es-PY',{hour:'2-digit',minute:'2-digit'})}
+
+function setSyncBadge(s){
+  const b=document.getElementById('sync-badge');if(!b)return;
+  b.className='sync-badge';
+  if(s==='saving'){b.classList.add('sync-saving');b.textContent='☁ Guardando...';}
+  else if(s==='ok'){b.classList.add('sync-ok');b.textContent='☁ En línea';}
+  else{b.classList.add('sync-error');b.textContent='☁ Sin conexión';}
+}
+
+async function saveState(){
+  setSyncBadge('saving');
+  try{await set(ref(db,ROOT),JSON.parse(JSON.stringify(state)));setSyncBadge('ok');}
+  catch(e){setSyncBadge('error');}
+}
+function scheduleSave(){if(saveTimer)clearTimeout(saveTimer);saveTimer=setTimeout(saveState,800);}
+
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200)}
+function openModal(id){document.getElementById(id).classList.add('show')}
+function closeModal(id){document.getElementById(id).classList.remove('show')}
+
+window.showPage=function(page,btn){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.bnav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-'+page).classList.add('active');
+  btn.classList.add('active');
+  window.scrollTo(0,0);
+  renderAll();
+};
+window.showTab=function(section,tab,btn){
+  const prefix=section+'-tab-';
+  document.querySelectorAll('[id^="'+prefix+'"]').forEach(el=>el.style.display='none');
+  document.getElementById(prefix+tab).style.display='block';
+  btn.closest('.tabs').querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+};
+window.openModal=openModal;
+window.closeModal=closeModal;
+
+function renderAll(){
+  if(!state)return;
+  renderDashboard();renderInsumos();renderTerminados();renderLotes();
+  renderVentas();renderClientes();renderCaja();renderBarriles();renderChopps();renderVentaSelect();
+}
+
+function renderDashboard(){
+  document.getElementById('fecha-hoy').textContent=new Date().toLocaleDateString('es-PY',{weekday:'long',day:'numeric',month:'long'});
+  const hoy=today(),ventas=arr(state.ventas),caja=arr(state.caja),insumos=arr(state.insumos),lotes=arr(state.lotes),clientes=arr(state.clientes),barriles=arr(state.barriles);
+  document.getElementById('dash-ventas-hoy').textContent=fmt(ventas.filter(v=>v.fecha===hoy).reduce((s,v)=>s+v.total,0));
+  document.getElementById('dash-litros').textContent=lotes.filter(l=>l.estado!=='Finalizado').reduce((s,l)=>s+l.vol,0)+'L';
+  document.getElementById('dash-clientes').textContent=clientes.length;
+  document.getElementById('dash-criticos').textContent=insumos.filter(i=>i.stock<=i.min).length;
+  document.getElementById('dash-cobrar').textContent=fmt(clientes.filter(c=>c.saldo<0).reduce((s,c)=>s+Math.abs(c.saldo),0));
+  document.getElementById('dash-barriles').textContent=barriles.filter(b=>b.estado==='en calle').length;
+  const cl=insumos.filter(i=>i.stock<=i.min);
+  document.getElementById('alertas-container').innerHTML=cl.length===0?'<div style="font-size:13px;color:#666">Sin alertas.</div>':cl.map(i=>'<div class="row"><div class="row-left"><span class="row-name">'+i.nombre+'</span><span class="row-sub">'+i.cat+'</span></div><span class="badge badge-danger">'+i.stock+' '+i.unidad+'</span></div>').join('');
+  const ult=ventas.slice(-5).reverse();
+  document.getElementById('ultimas-ventas-container').innerHTML=ult.length===0?'<div style="font-size:13px;color:#666">No hay ventas aún.</div>':ult.map(v=>'<div class="row"><div class="row-left"><span class="row-name">'+(v.cliente||'Venta directa')+'</span><span class="row-sub">'+v.hora+' · '+v.items+'</span></div><span style="font-size:14px;font-weight:600;color:var(--gold)">'+fmt(v.total)+'</span></div>').join('');
+}
+
+function renderInsumos(){
+  const el=document.getElementById('lista-insumos');if(!el)return;
+  el.innerHTML=arr(state.insumos).map(i=>{
+    const est=i.stock<=i.min?'badge-danger':i.stock<=i.min*1.5?'badge-warn':'badge-ok';
+    const etxt=i.stock<=i.min?'Bajo mínimo':i.stock<=i.min*1.5?'Por agotarse':'OK';
+    return '<div class="tbl-item"><div class="tbl-item-row"><span style="font-weight:600;font-size:14px">'+i.nombre+'</span><span class="badge '+est+'">'+etxt+'</span></div><div class="tbl-item-row"><span class="tbl-label">'+i.cat+' · '+i.unidad+'</span><div style="display:flex;align-items:center;gap:8px"><span class="tbl-val">'+i.stock+' / mín '+i.min+'</span><button class="btn btn-sm" onclick="editInsumo('+i.id+')"><i class="ti ti-edit"></i></button></div></div></div>';
+  }).join('')||'<div style="color:#666;text-align:center;padding:20px;font-size:13px">Sin insumos</div>';
+}
+
+function renderTerminados(){
+  const el=document.getElementById('lista-terminados');if(!el)return;
+  el.innerHTML=arr(state.terminados).map(t=>'<div class="tbl-item"><div class="tbl-item-row"><span style="font-weight:600;font-size:14px">'+t.nombre+'</span><span style="color:var(--gold);font-weight:600;font-size:14px">'+fmt(t.precio)+'</span></div><div class="tbl-item-row"><span class="tbl-label">'+t.formato+'</span><div style="display:flex;align-items:center;gap:8px"><span class="tbl-val">Stock: '+t.stock+'</span><button class="btn btn-sm" onclick="ajustarStock('+t.id+')">Ajustar</button></div></div></div>').join('')||'<div style="color:#666;text-align:center;padding:20px;font-size:13px">Sin productos</div>';
+}
+
+function renderLotes(){
+  const fc=document.getElementById('ferm-container');if(!fc)return;
+  const lotes=arr(state.lotes);
+  fc.innerHTML=['80L','150L','300L','500L'].map(f=>{
+    const l=lotes.find(l=>l.ferm===f&&l.estado!=='Finalizado');
+    if(!l)return '<div class="ferm-bar"><div class="ferm-label">'+f+'</div><div style="flex:1"><div style="font-size:10px;color:#444;margin-bottom:3px;text-transform:uppercase;letter-spacing:0.5px;font-family:Barlow Condensed,sans-serif">Libre</div><div class="ferm-prog"></div></div><div class="ferm-pct" style="color:#444">—</div></div>';
+    return '<div class="ferm-bar"><div class="ferm-label">'+f+'</div><div style="flex:1"><div style="font-size:10px;color:#888;margin-bottom:3px">'+l.estilo+' · '+l.vol+'L</div><div class="ferm-prog"><div class="ferm-fill" style="width:'+l.progreso+'%"></div></div></div><div class="ferm-pct">'+l.progreso+'%</div></div>';
+  }).join('');
+  const el=document.getElementById('lista-lotes');if(!el)return;
+  el.innerHTML=lotes.map(l=>'<div class="tbl-item"><div class="tbl-item-row"><span style="color:var(--gold);font-weight:700">#'+l.id+' '+l.estilo+'</span><span class="badge '+(l.estado==='Finalizado'?'badge-ok':'badge-blue')+'">'+l.estado+'</span></div><div class="tbl-item-row"><span class="tbl-label">'+l.ferm+' · '+l.vol+'L · Inicio: '+l.inicio+'</span><button class="btn btn-sm" onclick="finalizarLote('+l.id+')">Finalizar</button></div></div>').join('')||'<div style="color:#666;text-align:center;padding:16px;font-size:13px">Sin lotes</div>';
+}
+
+function renderVentaSelect(){
+  const sel=document.getElementById('venta-cliente');if(!sel)return;
+  const cur=sel.value;
+  sel.innerHTML='<option value="">— Venta directa —</option>'+arr(state.clientes).map(c=>'<option value="'+c.id+'">'+c.nombre+'</option>').join('');
+  sel.value=cur;
+}
+
+function renderVentas(){
+  const el=document.getElementById('lista-ventas');if(!el)return;
+  const lista=arr(state.ventas).slice().reverse();
+  el.innerHTML=lista.map(v=>'<div class="tbl-item"><div class="tbl-item-row"><span style="font-weight:600">'+(v.cliente||'Venta directa')+'</span><span style="color:var(--gold);font-weight:700">'+fmt(v.total)+'</span></div><div class="tbl-item-row"><span class="tbl-label">'+v.fecha+' '+v.hora+' · '+v.pago+'</span><span class="badge '+(v.pago==='fiado'?'badge-warn':'badge-ok')+'">'+(v.pago==='fiado'?'Pendiente':'Cobrado')+'</span></div><div style="font-size:11px;color:#666;margin-top:4px">'+v.items+'</div></div>').join('')||'<div style="color:#666;text-align:center;padding:16px;font-size:13px">Sin ventas</div>';
+}
+
+function renderClientes(){
+  const el=document.getElementById('lista-clientes');if(!el)return;
+  el.innerHTML=arr(state.clientes).map(c=>{
+    const sb=c.saldo<0?'<span class="badge badge-danger">Debe '+fmt(Math.abs(c.saldo))+'</span>':c.saldo>0?'<span class="badge badge-ok">A favor '+fmt(c.saldo)+'</span>':'<span class="badge badge-gray">Al día</span>';
+    return '<div class="tbl-item"><div class="tbl-item-row"><span style="font-weight:600;font-size:14px">'+c.nombre+'</span>'+sb+'</div><div class="tbl-item-row"><span class="tbl-label">'+c.tel+'</span><button class="btn btn-sm" onclick="verCliente('+c.id+')">Ver</button></div></div>';
+  }).join('')||'<div style="color:#666;text-align:center;padding:20px;font-size:13px">Sin clientes</div>';
+}
+
+function renderCaja(){
+  const hoy=today(),caja=arr(state.caja);
+  const movH=caja.filter(m=>m.fecha===hoy);
+  const ing=movH.filter(m=>m.tipo==='ingreso').reduce((s,m)=>s+m.monto,0);
+  const egr=movH.filter(m=>m.tipo==='egreso').reduce((s,m)=>s+m.monto,0);
+  const tIng=caja.filter(m=>m.tipo==='ingreso').reduce((s,m)=>s+m.monto,0);
+  const tEgr=caja.filter(m=>m.tipo==='egreso').reduce((s,m)=>s+m.monto,0);
+  ['caja-ingresos','caja-egresos','caja-balance','caja-total'].forEach((id,i)=>{const el=document.getElementById(id);if(el)el.textContent=fmt([ing,egr,ing-egr,tIng-tEgr][i]);});
+  const el=document.getElementById('lista-caja');if(!el)return;
+  el.innerHTML=movH.slice().reverse().map(m=>'<div class="tbl-item"><div class="tbl-item-row"><span style="font-weight:600;color:'+(m.tipo==='ingreso'?'var(--ok)':'var(--danger)')+'">'+fmt(m.monto)+'</span><div style="display:flex;align-items:center;gap:6px"><span class="badge '+(m.tipo==='ingreso'?'badge-ok':'badge-danger')+'">'+m.tipo+'</span><button class="btn btn-sm" onclick="abrirEditCaja('+m.id+')"><i class="ti ti-edit"></i></button></div></div><div class="tbl-item-row"><span class="tbl-label">'+m.hora+' · '+m.desc+'</span></div></div>').join('')||'<div style="color:#666;text-align:center;padding:16px;font-size:13px">Sin movimientos hoy</div>';
+}
+
+function renderBarriles(){
+  const bg=document.getElementById('barril-grid');if(!bg)return;
+  const borders={disponible:'#1D9E75',lleno:'#185FA5','en calle':'var(--gold)',limpieza:'var(--danger)'};
+  const icons={disponible:'🟢',lleno:'🍺','en calle':'🚚',limpieza:'🧹'};
+  const barriles=arr(state.barriles);
+  bg.innerHTML=barriles.map(b=>'<div class="barrel-card" style="border-left:3px solid '+(borders[b.estado]||'var(--border)')+'"><div class="barrel-icon">'+icons[b.estado]+'</div><div class="barrel-name">'+b.id+'</div><div class="barrel-status">'+b.cap+'L · '+b.estado+(b.contenido?' ('+b.contenido+')':'')+'</div></div>').join('');
+  const sel=document.getElementById('bm-barril');if(sel)sel.innerHTML=barriles.map(b=>'<option value="'+b.id+'">'+b.id+' '+b.cap+'L — '+b.estado+'</option>').join('');
+  const el=document.getElementById('lista-barril-mov');if(!el)return;
+  el.innerHTML=arr(state.barrilMovs).slice().reverse().map(m=>'<div class="tbl-item"><div class="tbl-item-row"><span style="color:var(--gold);font-weight:600">'+m.barril+'</span><span class="tbl-label">'+m.fecha+'</span></div><div class="tbl-item-row"><span class="tbl-val">'+m.accion+'</span><span class="tbl-label">'+(m.destino||'')+(m.contenido?' · '+m.contenido:'')+'</span></div></div>').join('')||'<div style="color:#666;text-align:center;padding:16px;font-size:13px">Sin movimientos</div>';
+}
+
+function renderChopps(){
+  for(let i=1;i<=2;i++){
+    const ch=arr(state.chopps)[i-1];const el=document.getElementById('chopp'+i+'-info');if(!el||!ch)continue;
+    if(ch.estado==='activo')el.innerHTML='<div class="stat-row"><span style="color:#666">Estado</span><span class="badge badge-ok">Activo</span></div><div class="stat-row"><span style="color:#666">Barril</span><span style="color:var(--gold);font-weight:600">'+ch.barril+'</span></div><div class="stat-row"><span style="color:#666">Contenido</span><span>'+ch.contenido+'</span></div>';
+    else if(ch.estado==='limpieza')el.innerHTML='<span class="badge badge-warn">En limpieza</span>';
+    else el.innerHTML='<span class="badge badge-gray">Sin barril</span>';
+  }
+}
+
+// ── ACCIONES ─────────────────────────────────────────────
+window.guardarInsumo=function(){
+  const n=document.getElementById('ins-nombre').value.trim();if(!n)return toast('Ingresá el nombre');
+  if(!Array.isArray(state.insumos))state.insumos=arr(state.insumos);
+  state.insumos.push({id:Date.now(),nombre:n,cat:document.getElementById('ins-cat').value,unidad:document.getElementById('ins-unidad').value,stock:parseFloat(document.getElementById('ins-stock').value)||0,min:parseFloat(document.getElementById('ins-min').value)||0});
+  closeModal('modal-insumo');renderAll();scheduleSave();toast('Insumo guardado ✓');
+  ['ins-nombre','ins-stock','ins-min'].forEach(id=>document.getElementById(id).value='');
+};
+
+window.guardarTerminado=function(){
+  const n=document.getElementById('ter-nombre').value.trim();if(!n)return toast('Ingresá el nombre');
+  if(!Array.isArray(state.terminados))state.terminados=arr(state.terminados);
+  state.terminados.push({id:Date.now(),nombre:n,formato:document.getElementById('ter-formato').value,stock:parseInt(document.getElementById('ter-stock').value)||0,precio:parseFloat(document.getElementById('ter-precio').value)||0});
+  closeModal('modal-terminado');renderAll();scheduleSave();toast('Producto guardado ✓');
+  ['ter-nombre','ter-stock','ter-precio'].forEach(id=>document.getElementById(id).value='');
+};
+
+window.ajustarStock=function(id){
+  const t=arr(state.terminados).find(t=>t.id===id);if(!t)return;
+  const v=prompt('Stock de '+t.nombre+'\nActual: '+t.stock+'\nNuevo valor:');
+  if(v===null)return;const n=parseInt(v);if(isNaN(n))return toast('Valor inválido');
+  t.stock=n;if(!Array.isArray(state.terminados))state.terminados=arr(state.terminados);
+  renderAll();scheduleSave();toast('Stock actualizado ✓');
+};
+
+window.editInsumo=function(id){
+  const ins=arr(state.insumos).find(i=>i.id===id);if(!ins)return;
+  const v=prompt('Stock de '+ins.nombre+'\nActual: '+ins.stock+' '+ins.unidad+'\nNuevo valor:');
+  if(v===null)return;const n=parseFloat(v);if(isNaN(n))return toast('Valor inválido');
+  ins.stock=n;if(!Array.isArray(state.insumos))state.insumos=arr(state.insumos);
+  renderAll();scheduleSave();toast('Stock actualizado ✓');
+};
+
+window.guardarLote=function(){
+  const est=document.getElementById('lote-estilo').value.trim();if(!est)return toast('Ingresá el estilo');
+  const ferm=document.getElementById('lote-ferm').value+'L';
+  if(!Array.isArray(state.lotes))state.lotes=arr(state.lotes);
+  if(state.lotes.find(l=>l.ferm===ferm&&l.estado!=='Finalizado'))return toast('Fermentador '+ferm+' ocupado');
+  state.lotes.push({id:Date.now(),estilo:est,ferm,vol:parseInt(document.getElementById('lote-vol').value)||0,inicio:document.getElementById('lote-fecha').value||today(),dias:parseInt(document.getElementById('lote-dias').value)||14,notas:document.getElementById('lote-notas').value,progreso:0,estado:'Fermentando'});
+  closeModal('modal-lote');renderAll();scheduleSave();toast('Lote iniciado ✓');
+  ['lote-estilo','lote-vol','lote-notas'].forEach(id=>document.getElementById(id).value='');
+};
+
+window.finalizarLote=function(id){
+  const l=arr(state.lotes).find(l=>l.id===id);if(!l)return;
+  if(!confirm('¿Finalizar lote ('+l.estilo+')?'))return;
+  l.estado='Finalizado';l.progreso=100;
+  if(!Array.isArray(state.lotes))state.lotes=arr(state.lotes);
+  renderAll();scheduleSave();toast('Lote finalizado ✓');
+};
+
+let nextItemId=0;
+window.addItemVenta=function(){
+  nextItemId++;
+  const div=document.createElement('div');div.className='venta-item';div.id='item-'+nextItemId;
+  const opts=arr(state.terminados).map(t=>'<option value="'+t.id+'">'+t.nombre+' — '+t.formato+'</option>').join('');
+  div.innerHTML='<div class="form-group" style="margin-bottom:8px"><label>Producto</label><select onchange="calcTotal()" class="item-prod" data-id="'+nextItemId+'">'+opts+'</select></div><div style="display:flex;gap:8px;align-items:flex-end"><div class="form-group" style="flex:1;margin-bottom:0"><label>Cantidad</label><input type="number" min="1" value="1" class="item-qty" data-id="'+nextItemId+'" oninput="calcTotal()" inputmode="numeric"></div><button class="btn btn-sm" style="margin-bottom:0" onclick="document.getElementById(\'item-'+nextItemId+'\').remove();calcTotal()"><i class="ti ti-trash"></i></button></div>';
+  document.getElementById('items-venta').appendChild(div);calcTotal();
+};
+
+window.calcTotal=function(){
+  let total=0;
+  document.querySelectorAll('.item-prod').forEach(sel=>{
+    const t=arr(state.terminados).find(t=>t.id===parseInt(sel.value));if(!t)return;
+    const qEl=document.querySelector('.item-qty[data-id="'+sel.dataset.id+'"]');
+    total+=t.precio*(parseInt(qEl?qEl.value:1)||1);
+  });
+  document.getElementById('total-venta').textContent=fmt(total);
+};
+
+window.registrarVenta=function(){
+  const items=[];let total=0,ok=true;
+  document.querySelectorAll('.item-prod').forEach(sel=>{
+    const t=arr(state.terminados).find(t=>t.id===parseInt(sel.value));if(!t){ok=false;return;}
+    const qEl=document.querySelector('.item-qty[data-id="'+sel.dataset.id+'"]');
+    const qty=parseInt(qEl?qEl.value:1)||1;
+    if(qty>t.stock){toast('Stock insuficiente: '+t.nombre);ok=false;return;}
+    items.push(qty+'x '+t.nombre);total+=t.precio*qty;t.stock-=qty;
+  });
+  if(!ok)return;if(items.length===0)return toast('Agregá al menos un producto');
+  const cliId=document.getElementById('venta-cliente').value;
+  const cli=cliId?arr(state.clientes).find(c=>c.id==cliId):null;
+  const pago=document.getElementById('venta-pago').value;
+  if(!Array.isArray(state.ventas))state.ventas=arr(state.ventas);
+  if(!Array.isArray(state.caja))state.caja=arr(state.caja);
+  state.ventas.push({id:Date.now(),fecha:today(),hora:nowTime(),clienteId:cliId||null,cliente:cli?cli.nombre:'',items:items.join(', '),total,pago});
+  if(pago==='fiado'&&cli)cli.saldo-=total;
+  if(cli)cli.compras+=total;
+  state.caja.push({id:Date.now(),fecha:today(),hora:nowTime(),tipo:'ingreso',desc:'Venta — '+(cli?cli.nombre:'directa'),monto:total});
+  document.getElementById('items-venta').innerHTML='';
+  document.getElementById('total-venta').textContent='Gs. 0';
+  document.getElementById('venta-cliente').value='';
+  renderAll();scheduleSave();toast('¡Venta registrada! ✓');
+};
+
+window.guardarCliente=function(){
+  const n=document.getElementById('cli-nombre').value.trim();if(!n)return toast('Ingresá el nombre');
+  if(!Array.isArray(state.clientes))state.clientes=arr(state.clientes);
+  state.clientes.push({id:Date.now(),nombre:n,tel:document.getElementById('cli-tel').value,dir:document.getElementById('cli-dir').value,notas:document.getElementById('cli-notas').value,saldo:0,compras:0});
+  closeModal('modal-cliente');renderAll();scheduleSave();toast('Cliente guardado ✓');
+  ['cli-nombre','cli-tel','cli-dir','cli-notas'].forEach(id=>document.getElementById(id).value='');
+};
+
+window.verCliente=function(id){
+  const c=arr(state.clientes).find(c=>c.id===id);if(!c)return;
+  _clienteDetalleId=id;
+  document.getElementById('detalle-nombre').textContent=c.nombre;
+  const ventas=arr(state.ventas).filter(v=>v.clienteId==id);
+  let html='<div class="stat-row"><span style="color:#666">Teléfono</span><span>'+c.tel+'</span></div>';
+  if(c.dir)html+='<div class="stat-row"><span style="color:#666">Dirección</span><span>'+c.dir+'</span></div>';
+  html+='<div class="stat-row"><span style="color:#666">Total compras</span><span style="color:var(--gold);font-weight:600">'+fmt(c.compras)+'</span></div>';
+  html+='<div class="stat-row"><span style="color:#666">Saldo</span><span class="acct-balance '+(c.saldo<0?'negative':'positive')+'">'+fmt(Math.abs(c.saldo))+(c.saldo<0?' (debe)':' (a favor)')+'</span></div>';
+  if(ventas.length>0)html+='<div style="margin-top:10px;font-size:11px;font-weight:700;color:#555;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;font-family:Barlow Condensed,sans-serif">Últimas compras</div>'+ventas.slice(-3).reverse().map(v=>'<div class="stat-row"><span style="font-size:12px;color:#888">'+v.fecha+' — '+v.items+'</span><span style="font-size:13px;font-weight:600;color:var(--gold)">'+fmt(v.total)+'</span></div>').join('');
+  document.getElementById('detalle-body').innerHTML=html;
+  document.getElementById('cobro-monto').value='';
+  openModal('modal-cliente-detalle');
+};
+
+window.registrarCobro=function(){
+  const c=arr(state.clientes).find(c=>c.id===_clienteDetalleId);if(!c)return;
+  const monto=parseFloat(document.getElementById('cobro-monto').value);
+  if(!monto||monto<=0)return toast('Ingresá un monto válido');
+  c.saldo+=monto;
+  if(!Array.isArray(state.caja))state.caja=arr(state.caja);
+  state.caja.push({id:Date.now(),fecha:today(),hora:nowTime(),tipo:'ingreso',desc:'Cobro a '+c.nombre,monto});
+  closeModal('modal-cliente-detalle');renderAll();scheduleSave();toast('Cobro registrado ✓');
+};
+
+window.registrarMovimiento=function(){
+  const tipo=document.getElementById('mov-tipo').value;
+  const desc=document.getElementById('mov-desc').value.trim();
+  const monto=parseFloat(document.getElementById('mov-monto').value);
+  if(!desc)return toast('Ingresá una descripción');
+  if(!monto||monto<=0)return toast('Ingresá un monto válido');
+  if(!Array.isArray(state.caja))state.caja=arr(state.caja);
+  state.caja.push({id:Date.now(),fecha:today(),hora:nowTime(),tipo,desc,monto});
+  document.getElementById('mov-desc').value='';document.getElementById('mov-monto').value='';
+  renderAll();scheduleSave();toast('Movimiento registrado ✓');
+};
+
+window.abrirEditCaja=function(id){
+  const m=arr(state.caja).find(m=>m.id===id);if(!m)return;
+  _editCajaId=id;
+  document.getElementById('edit-mov-tipo').value=m.tipo;
+  document.getElementById('edit-mov-desc').value=m.desc;
+  document.getElementById('edit-mov-monto').value=m.monto;
+  openModal('modal-editar-caja');
+};
+window.guardarEditCaja=function(){
+  if(!Array.isArray(state.caja))state.caja=arr(state.caja);
+  const m=state.caja.find(m=>m.id===_editCajaId);if(!m)return;
+  const desc=document.getElementById('edit-mov-desc').value.trim();
+  const monto=parseFloat(document.getElementById('edit-mov-monto').value);
+  if(!desc)return toast('Ingresá una descripción');
+  if(!monto||monto<=0)return toast('Ingresá un monto válido');
+  m.tipo=document.getElementById('edit-mov-tipo').value;m.desc=desc;m.monto=monto;
+  closeModal('modal-editar-caja');renderAll();scheduleSave();toast('Movimiento actualizado ✓');
+};
+window.eliminarMovCaja=function(){
+  if(!confirm('¿Eliminar este movimiento?'))return;
+  if(!Array.isArray(state.caja))state.caja=arr(state.caja);
+  state.caja=state.caja.filter(m=>m.id!==_editCajaId);
+  closeModal('modal-editar-caja');renderAll();scheduleSave();toast('Eliminado ✓');
+};
+
+window.registrarMovBarril=function(){
+  const bId=document.getElementById('bm-barril').value;
+  const b=arr(state.barriles).find(b=>b.id===bId);if(!b)return;
+  const accion=document.getElementById('bm-accion').value;
+  const contenido=document.getElementById('bm-contenido').value;
+  const destino=document.getElementById('bm-destino').value;
+  if(accion==='llenar'){b.estado='lleno';b.contenido=contenido;b.cliente='';}
+  else if(accion==='salida'){b.estado='en calle';b.cliente=destino;}
+  else if(accion==='retorno'){b.estado='disponible';b.cliente='';b.contenido='';}
+  else{b.estado='limpieza';b.contenido='';b.cliente='';}
+  if(!Array.isArray(state.barrilMovs))state.barrilMovs=arr(state.barrilMovs);
+  state.barrilMovs.push({fecha:today(),barril:bId,accion:{llenar:'Llenado',salida:'Enviar a cliente',retorno:'Retorno',limpieza:'Limpieza'}[accion],destino,contenido});
+  closeModal('modal-barril-mov');renderAll();scheduleSave();toast('Movimiento registrado ✓');
+  ['bm-contenido','bm-destino'].forEach(id=>document.getElementById(id).value='');
+};
+
+window.choppAccion=function(num,accion){
+  if(!Array.isArray(state.chopps))state.chopps=arr(state.chopps);
+  const ch=state.chopps[num-1];
+  if(accion==='conectar'){
+    const bId=prompt('ID del barril (ej: B30-5):');if(!bId)return;
+    const b=arr(state.barriles).find(b=>b.id===bId);if(!b)return toast('Barril no encontrado');
+    ch.estado='activo';ch.barril=bId;ch.contenido=b.contenido||'';ch.desde=today();
+  }else if(accion==='vaciar'){ch.estado='libre';ch.barril='';ch.contenido='';ch.desde='';}
+  else{ch.estado='limpieza';ch.barril='';ch.contenido='';}
+  renderAll();scheduleSave();toast('Chopp #'+num+' actualizado ✓');
+};
+
+// ── INICIO ───────────────────────────────────────────────
+async function initApp(){
+  try{
+    const snap=await get(ref(db,ROOT));
+    if(snap.exists()){state=snap.val();}
+    else{state=JSON.parse(JSON.stringify(DEFAULT));await set(ref(db,ROOT),state);}
+    document.getElementById('loading-msg').textContent='¡Listo!';
+    setTimeout(()=>{
+      document.getElementById('loading-screen').style.display='none';
+      document.getElementById('app').style.display='block';
+      document.getElementById('lote-fecha').value=today();
+      renderAll();setSyncBadge('ok');
+      onValue(ref(db,ROOT),(snap)=>{
+        const d=snap.val();if(d){state=d;['chopps','barriles','barrilMovs','ventas','caja','clientes','lotes','insumos','terminados'].forEach(k=>{if(!state[k])state[k]=DEFAULT[k]||[];});renderAll();}setSyncBadge('ok');
+      });
+    },500);
+  }catch(e){
+    document.getElementById('loading-msg').textContent='Error — verificá conexión';
+    setSyncBadge('error');
+  }
+}
+initApp();
+</script>
+</body>
+</html>
